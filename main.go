@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strings"
+	"time"
 
 	"github.com/cloudflare/cloudflare-go"
 )
@@ -85,7 +87,7 @@ func loadURLSfromFile() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		urls[scanner.Text()] = struct{}{}
+		urls[strings.TrimSpace(scanner.Text())] = struct{}{}
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -103,6 +105,7 @@ func purge() {
 	chunkSize := 30
 	batchKeys := make([]string, 0, chunkSize)
 	process := func() {
+		time.Sleep(time.Second)
 		if dryRun == false {
 			pcr := cloudflare.PurgeCacheRequest{Files: batchKeys}
 			r, err := api.PurgeCache(zoneID, pcr)
